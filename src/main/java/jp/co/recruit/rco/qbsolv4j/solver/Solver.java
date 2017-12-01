@@ -16,7 +16,7 @@ public class Solver {
    * @param qubo the QUBO matrix being solved
    * @return energy changes from flipping a bit
    */
-  public static double[] evaluateFlipCost(int[] solution, int quboSize, double[][] qubo) {
+  static double[] evaluateFlipCost(int[] solution, int quboSize, double[][] qubo) {
     double[] flipCost = new double[quboSize];
     for (int i = 0; i < quboSize; i++) {
       double rowSum = 0;
@@ -89,6 +89,17 @@ public class Solver {
     return newEnergy;
   }
 
+  /**
+   * Try to improve the current solution by flipping single bit.
+   *
+   * @param energy current energy
+   * @param solution current solution vector
+   * @param quboSize the size of the QUBO matrix
+   * @param qubo the QUBO matrix being solved
+   * @param flipCost energy changes
+   * @param bitFlips count of bit flips
+   * @return improved energy
+   */
   public static double localSearchOneBit(double energy, int[] solution, int quboSize,
       double[][] qubo, double[] flipCost, AtomicLong bitFlips) {
 
