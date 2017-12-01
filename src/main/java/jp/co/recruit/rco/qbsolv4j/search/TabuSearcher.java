@@ -34,6 +34,7 @@ public class TabuSearcher {
     int[] best = Arrays.copyOf(solution, quboSize);
     int[] tabuK = new int[quboSize];
 
+    searchIteration:
     while (bitFlips[0] < iterMax) {
       int neighborBestBit = 0;
       double neighbourBest = BIGNEGFP;
@@ -59,11 +60,11 @@ public class TabuSearcher {
 
           System.arraycopy(solution, 0, best, 0, quboSize);
           if (targetSet && lastEnergy >= sign * target) {
-            break;
+            break searchIteration;
           }
 
-          double howFar = (double) (iterMax - bitFlips[0]) / (double) thisIter;
-          if (howFar < 0.80 && numIncrease > 0) {
+          double done = 1.0 - (iterMax - bitFlips[0]) / (double) thisIter;
+          if (done >= 0.20 && numIncrease > 0) {
             iterMax += increaseIter;
             thisIter += increaseIter;
             numIncrease--;
@@ -77,9 +78,6 @@ public class TabuSearcher {
         }
       }
 
-      if (targetSet && lastEnergy >= sign * target) {
-        break;
-      }
       if (!newBestEnergyFound) {
         lastEnergy = Solver
             .flipOneBit(lastEnergy, neighborBestBit, solution, quboSize, qubo,
