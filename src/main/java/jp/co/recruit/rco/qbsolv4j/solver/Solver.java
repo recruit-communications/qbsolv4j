@@ -103,7 +103,7 @@ public class Solver {
       Collections.shuffle(indices);
       for (int bit : indices) {
         bitFlips[0]++;
-        if (energy + flipCost[bit] > energy) {
+        if (flipCost[bit] > 0) {
           energy = flipOneBit(energy, bit, solution, quboSize, qubo, flipCost);
           improved = true;
         }
