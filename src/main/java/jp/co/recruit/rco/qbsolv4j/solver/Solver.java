@@ -139,4 +139,48 @@ public class Solver {
     double[] flipCost = evaluateFlipCost(solution, quboSize, qubo);
     return localSearchOneBit(energy, solution, quboSize, qubo, flipCost, bitFlips);
   }
+
+  static void reduce(int[] Icompress, double[][] qubo, int subQuboSize, int quboSize,
+      double[][] subQubo, int[] solution, int[] subSolution) {
+    for (int i = 0; i < subQuboSize; i++) {
+      for (int j = 0; j < subQuboSize; j++) {
+        subQubo[i][j] = 0;
+      }
+    }
+
+    for (int i = 0; i < subQuboSize; i++) {
+      for (int j = 0; j < subQuboSize; j++) {
+        subQubo[i][j] = qubo[Icompress[i]][Icompress[j]];
+      }
+    }
+    for (int i = 0; i < subQuboSize; i++) {
+      subSolution[i] = solution[Icompress[i]];
+    }
+
+    for (int subVariable = 0; subVariable < subQuboSize; subVariable++) {
+      int variable = Icompress[subVariable];
+      double clamp = 0;
+
+      int ji = subQuboSize - 1;
+
+      for (int j = quboSize - 1; j > variable; j--) {
+        if (j == Icompress[ji]) {
+          ji--;
+        } else {
+          clamp += qubo[variable][j] * solution[j];
+        }
+      }
+
+      ji = 0;
+      for (int j = 0; j < variable + 1; j++) {
+        if (j == Icompress[ji]) {
+          ji++;
+        } else {
+          clamp += qubo[j][variable] * solution[j];
+        }
+      }
+
+      subQubo[subVariable][subVariable] += clamp;
+    }
+  }
 }
