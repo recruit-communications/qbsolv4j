@@ -12,9 +12,8 @@ public class Arguments {
   final double targetValue;
   final int tabuListLength;
 
-  public Arguments(String inputFilepath, String outputFilepath,
-      boolean findMaximum, int subMatrixSize, int repeats, long timeoutSeconds,
-      double targetValue, int tabuListLength) {
+  public Arguments(String inputFilepath, String outputFilepath, boolean findMaximum,
+      int subMatrixSize, int repeats, long timeoutSeconds, double targetValue, int tabuListLength) {
     this.inputFilepath = inputFilepath;
     this.outputFilepath = outputFilepath;
     this.findMaximum = findMaximum;

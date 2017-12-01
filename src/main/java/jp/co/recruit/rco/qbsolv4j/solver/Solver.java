@@ -3,20 +3,20 @@ package jp.co.recruit.rco.qbsolv4j.solver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Solver {
 
   /**
-   * This function evaluates the changes of objective function from flipping a
-   * bit for a given solution.
+   * This function evaluates the changes of objective function from flipping a bit for a given
+   * solution.
    *
    * @param solution current solution vector
    * @param quboSize the number of variables in the QUBO matrix
    * @param qubo the QUBO matrix being solved
    * @return energy changes from flipping a bit
    */
-  public static double[] evaluateFlipCost(int[] solution, int quboSize,
-      double[][] qubo) {
+  public static double[] evaluateFlipCost(int[] solution, int quboSize, double[][] qubo) {
     double[] flipCost = new double[quboSize];
     for (int i = 0; i < quboSize; i++) {
       double rowSum = 0;
@@ -47,7 +47,7 @@ public class Solver {
    * @param qubo the QUBO matrix being solved
    * @return energy of solution
    */
- public static double evaluateEnergy(int[] solution, int quboSize, double[][] qubo) {
+  public static double evaluateEnergy(int[] solution, int quboSize, double[][] qubo) {
     double result = 0.0;
     for (int i = 0; i < quboSize; i++) {
       for (int j = i; j < quboSize; j++) {
@@ -69,8 +69,8 @@ public class Solver {
    * @param flipCost changes in energy from flipping a bit
    * @return new energy of the flipped solution
    */
-  public static double flipOneBit(double oldEnergy, int bit, int[] solution,
-      int quboSize, double[][] qubo, double[] flipCost) {
+  public static double flipOneBit(double oldEnergy, int bit, int[] solution, int quboSize,
+      double[][] qubo, double[] flipCost) {
     double newEnergy = oldEnergy + flipCost[bit];
 
     // flip
@@ -89,8 +89,8 @@ public class Solver {
     return newEnergy;
   }
 
-  public static double localSearchOneBit(double energy, int[] solution,
-      int quboSize, double[][] qubo, double[] flipCost, long[] bitFlips) {
+  public static double localSearchOneBit(double energy, int[] solution, int quboSize,
+      double[][] qubo, double[] flipCost, AtomicLong bitFlips) {
 
     List<Integer> indices = new ArrayList<>();
     for (int k = 0; k < quboSize; k++) {
@@ -102,7 +102,7 @@ public class Solver {
       improved = false;
       Collections.shuffle(indices);
       for (int bit : indices) {
-        bitFlips[0]++;
+        bitFlips.incrementAndGet();
         if (flipCost[bit] > 0) {
           energy = flipOneBit(energy, bit, solution, quboSize, qubo, flipCost);
           improved = true;
@@ -122,11 +122,10 @@ public class Solver {
    * @param bitFlips the number of bit flips in the entire algorithm
    * @return new energy of the modified solution
    */
-  public static double localMaximumSearch(int[] solution, int quboSize,
-      double[][] qubo, long[] bitFlips) {
+  public static double localMaximumSearch(int[] solution, int quboSize, double[][] qubo,
+      AtomicLong bitFlips) {
     double energy = evaluateEnergy(solution, quboSize, qubo);
     double[] flipCost = evaluateFlipCost(solution, quboSize, qubo);
-    return localSearchOneBit(energy, solution, quboSize, qubo, flipCost,
-        bitFlips);
+    return localSearchOneBit(energy, solution, quboSize, qubo, flipCost, bitFlips);
   }
 }

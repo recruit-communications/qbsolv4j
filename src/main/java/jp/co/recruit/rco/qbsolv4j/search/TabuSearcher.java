@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import jp.co.recruit.rco.qbsolv4j.solver.Solver;
 
 public class TabuSearcher {
@@ -16,26 +17,25 @@ public class TabuSearcher {
     this.findMax = findMax;
   }
 
-  public double search(int[] solution, int quboSize, double[][] qubo,
-      double[] flipCost, long[] bitFlips, long iterMax, double target,
-      boolean targetSet, int nTabu) {
+  public double search(int[] solution, int quboSize, double[][] qubo, double[] flipCost,
+      AtomicLong bitFlips, long maxFlipCountOfThisIteration, double target, boolean targetSet,
+      int nTabu) {
     final double sign = findMax ? 1.0 : -1.0;
 
     int lastChangedBit = 0;
     int numIncrease = 900;
 
-    double bestEnergy = Solver
-        .localMaximumSearch(solution, quboSize, qubo, bitFlips);
+    double bestEnergy = Solver.localMaximumSearch(solution, quboSize, qubo, bitFlips);
     int[] index = valueIndexSort(flipCost, quboSize);
-    long thisIter = iterMax - bitFlips[0];
-    long increaseIter = thisIter / 2;
+    long flipCountOfThisIteration = maxFlipCountOfThisIteration - bitFlips.get();
+    long iterationIncrement = flipCountOfThisIteration / 2;
     double lastEnergy = bestEnergy;
 
     int[] best = Arrays.copyOf(solution, quboSize);
     int[] tabuK = new int[quboSize];
 
     searchIteration:
-    while (bitFlips[0] < iterMax) {
+    while (bitFlips.get() < maxFlipCountOfThisIteration) {
       int neighborBestBit = 0;
       double neighbourBest = BIGNEGFP;
       boolean newBestEnergyFound = false;
@@ -45,16 +45,14 @@ public class TabuSearcher {
           continue;
         }
 
-        bitFlips[0]++;
+        bitFlips.incrementAndGet();
         double newEnergy = lastEnergy + flipCost[bit];
         if (newEnergy > bestEnergy) {
           newBestEnergyFound = true;
           lastChangedBit = bit;
-          newEnergy = Solver
-              .flipOneBit(lastEnergy, bit, solution, quboSize, qubo, flipCost);
+          newEnergy = Solver.flipOneBit(lastEnergy, bit, solution, quboSize, qubo, flipCost);
           lastEnergy = Solver
-              .localSearchOneBit(newEnergy, solution, quboSize, qubo, flipCost,
-                  bitFlips);
+              .localSearchOneBit(newEnergy, solution, quboSize, qubo, flipCost, bitFlips);
           index = valueIndexSort(flipCost, quboSize);
           bestEnergy = lastEnergy;
 
@@ -63,10 +61,11 @@ public class TabuSearcher {
             break searchIteration;
           }
 
-          double done = 1.0 - (iterMax - bitFlips[0]) / (double) thisIter;
+          double done = 1.0
+              - (maxFlipCountOfThisIteration - bitFlips.get()) / (double) flipCountOfThisIteration;
           if (done >= 0.20 && numIncrease > 0) {
-            iterMax += increaseIter;
-            thisIter += increaseIter;
+            maxFlipCountOfThisIteration += iterationIncrement;
+            flipCountOfThisIteration += iterationIncrement;
             numIncrease--;
           }
           break;
@@ -80,8 +79,7 @@ public class TabuSearcher {
 
       if (!newBestEnergyFound) {
         lastEnergy = Solver
-            .flipOneBit(lastEnergy, neighborBestBit, solution, quboSize, qubo,
-                flipCost);
+            .flipOneBit(lastEnergy, neighborBestBit, solution, quboSize, qubo, flipCost);
         lastChangedBit = neighborBestBit;
       }
 
