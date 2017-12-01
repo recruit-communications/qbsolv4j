@@ -122,8 +122,8 @@ public class Solver {
    * @param bitFlips the number of bit flips in the entire algorithm
    * @return new energy of the modified solution
    */
-  static double localSearch(int[] solution, int quboSize, double[][] qubo,
-      long[] bitFlips) {
+  static double localMaximumSearch(int[] solution, int quboSize,
+      double[][] qubo, long[] bitFlips) {
     double energy = evaluateEnergy(solution, quboSize, qubo);
     double[] flipCost = evaluateFlipCost(solution, quboSize, qubo);
     return localSearchOneBit(energy, solution, quboSize, qubo, flipCost,
