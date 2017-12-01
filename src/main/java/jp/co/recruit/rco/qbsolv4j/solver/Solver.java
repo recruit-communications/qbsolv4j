@@ -1,5 +1,9 @@
 package jp.co.recruit.rco.qbsolv4j.solver;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Solver {
 
   /**
@@ -85,4 +89,44 @@ public class Solver {
     return newEnergy;
   }
 
+  private static double localSearchOneBit(double energy, int[] solution,
+      int quboSize, double[][] qubo, double[] flipCost, long[] bitFlips) {
+
+    List<Integer> indices = new ArrayList<>();
+    for (int k = 0; k < quboSize; k++) {
+      indices.add(k);
+    }
+
+    boolean improved = true;
+    while (improved) {
+      improved = false;
+      Collections.shuffle(indices);
+      for (int bit : indices) {
+        bitFlips[0]++;
+        if (energy + flipCost[bit] > energy) {
+          energy = flipOneBit(energy, bit, solution, quboSize, qubo, flipCost);
+          improved = true;
+        }
+      }
+    }
+
+    return energy;
+  }
+
+  /**
+   * Performs a local maximum search improving the solution
+   *
+   * @param solution current solution
+   * @param quboSize the size of the QUBO matrix
+   * @param qubo the QUBO matrix being solved
+   * @param bitFlips the number of bit flips in the entire algorithm
+   * @return new energy of the modified solution
+   */
+  static double localSearch(int[] solution, int quboSize, double[][] qubo,
+      long[] bitFlips) {
+    double energy = evaluateEnergy(solution, quboSize, qubo);
+    double[] flipCost = evaluateFlipCost(solution, quboSize, qubo);
+    return localSearchOneBit(energy, solution, quboSize, qubo, flipCost,
+        bitFlips);
+  }
 }
