@@ -15,7 +15,7 @@ public class Solver {
    * @param qubo the QUBO matrix being solved
    * @return energy changes from flipping a bit
    */
-  static double[] evaluateFlipCost(int[] solution, int quboSize,
+  public static double[] evaluateFlipCost(int[] solution, int quboSize,
       double[][] qubo) {
     double[] flipCost = new double[quboSize];
     for (int i = 0; i < quboSize; i++) {
@@ -47,7 +47,7 @@ public class Solver {
    * @param qubo the QUBO matrix being solved
    * @return energy of solution
    */
-  static double evaluateEnergy(int[] solution, int quboSize, double[][] qubo) {
+ public static double evaluateEnergy(int[] solution, int quboSize, double[][] qubo) {
     double result = 0.0;
     for (int i = 0; i < quboSize; i++) {
       for (int j = i; j < quboSize; j++) {
@@ -69,7 +69,7 @@ public class Solver {
    * @param flipCost changes in energy from flipping a bit
    * @return new energy of the flipped solution
    */
-  static double flipOneBit(double oldEnergy, int bit, int[] solution,
+  public static double flipOneBit(double oldEnergy, int bit, int[] solution,
       int quboSize, double[][] qubo, double[] flipCost) {
     double newEnergy = oldEnergy + flipCost[bit];
 
@@ -89,7 +89,7 @@ public class Solver {
     return newEnergy;
   }
 
-  private static double localSearchOneBit(double energy, int[] solution,
+  public static double localSearchOneBit(double energy, int[] solution,
       int quboSize, double[][] qubo, double[] flipCost, long[] bitFlips) {
 
     List<Integer> indices = new ArrayList<>();
@@ -122,7 +122,7 @@ public class Solver {
    * @param bitFlips the number of bit flips in the entire algorithm
    * @return new energy of the modified solution
    */
-  static double localMaximumSearch(int[] solution, int quboSize,
+  public static double localMaximumSearch(int[] solution, int quboSize,
       double[][] qubo, long[] bitFlips) {
     double energy = evaluateEnergy(solution, quboSize, qubo);
     double[] flipCost = evaluateFlipCost(solution, quboSize, qubo);
