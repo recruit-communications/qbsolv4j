@@ -54,5 +54,35 @@ public class Solver {
     return result;
   }
 
+  /**
+   * Flips a given bit in the solution, and calculates the new energy.
+   *
+   * @param oldEnergy current objective function value
+   * @param bit the bit to be flipped
+   * @param solution current solution vector
+   * @param quboSize the size of the QUBO
+   * @param qubo the QUBO matrix being solved
+   * @param flipCost changes in energy from flipping a bit
+   * @return new energy of the flipped solution
+   */
+  static double flipOneBit(double oldEnergy, int bit, int[] solution,
+      int quboSize, double[][] qubo, double[] flipCost) {
+    double newEnergy = oldEnergy + flipCost[bit];
+
+    // flip
+    solution[bit] ^= 1;
+    flipCost[bit] *= -1;
+
+    // update flip costs
+    int x = solution[bit] == 0 ? 1 : -1;
+    for (int i = 0; i < bit; i++) {
+      flipCost[i] += x * qubo[i][bit] * (solution[i] - 1 ^ solution[i]);
+    }
+    for (int i = bit + 1; i < quboSize; i++) {
+      flipCost[i] += x * qubo[bit][i] * (solution[i] - 1 ^ solution[i]);
+    }
+
+    return newEnergy;
+  }
 
 }
