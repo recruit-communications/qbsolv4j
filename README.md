@@ -1,7 +1,7 @@
 qbsolv4j
 ======
 
-Java implementation of qbsolv
+Java implementation of qbsolv (https://github.com/dwavesystems/qbsolv)
 
 Organization
 -------------
